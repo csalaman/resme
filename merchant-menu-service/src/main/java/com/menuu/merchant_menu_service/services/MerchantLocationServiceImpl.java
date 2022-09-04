@@ -1,6 +1,7 @@
 package com.menuu.merchant_menu_service.services;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,13 @@ public class MerchantLocationServiceImpl implements MerchantLocationService {
 	@Override
 	public MerchantLocation createMerchantLocation(final MerchantLocation merchantLocation) {
 		Objects.requireNonNull(merchantLocation);
+		final Optional<MerchantLocation> duplicateML = mlRepo.findAll().stream().filter((ml) -> {
+			return merchantLocation.getAddressPrimary().equals(ml.getAddressPrimary());
+		}).findFirst();
+		if (duplicateML.isPresent()) {
+			// Failed, duplicate location address
+			return null;
+		}
 		return mlRepo.save(merchantLocation);
 	}
 
@@ -59,8 +67,7 @@ public class MerchantLocationServiceImpl implements MerchantLocationService {
 	 * {@inheritDocs}
 	 */
 	@Override
-	public MerchantLocation updateMerchantLocationAddress(final String uuid,
-			final AddressDTO mlAddressDto) {
+	public MerchantLocation updateMerchantLocationAddress(final String uuid, final AddressDTO mlAddressDto) {
 		Objects.requireNonNull(uuid);
 		Objects.requireNonNull(mlAddressDto);
 
@@ -78,8 +85,24 @@ public class MerchantLocationServiceImpl implements MerchantLocationService {
 
 	@Override
 	public MerchantLocation updateMerchantLocationDetails(final String uuid, final MerchantLocationDetailsDTO details) {
-		// TODO Auto-generated method stub
-		return null;
+		Objects.requireNonNull(uuid);
+		Objects.requireNonNull(details);
+
+		// TODO: Update as patch, with Map of Field:Value pairs
+		mlRepo.findById(uuid).ifPresentOrElse((merchantLocation) -> {
+			merchantLocation.setName(details.getName());
+			merchantLocation.setAddressPrimary(details.getAddressPrimary());
+			merchantLocation.setAddressSecondary(details.getAddressSecondary());
+			merchantLocation.setCity(details.getCity());
+			merchantLocation.setState(details.getState());
+			merchantLocation.setZipcode(details.getZipcode());
+			merchantLocation.setCountry(details.getCountry());
+			mlRepo.save(merchantLocation);
+		}, () -> {
+			// Failed to find by ID
+		});
+
+		return mlRepo.findById(uuid).get();
 	}
 
 }

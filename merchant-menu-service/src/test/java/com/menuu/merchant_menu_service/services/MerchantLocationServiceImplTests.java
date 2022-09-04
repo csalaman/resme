@@ -48,5 +48,23 @@ public class MerchantLocationServiceImplTests {
 		verify(merchantLocationRepositoryMock, times(1)).save(merchantLocation);
 		assertEquals(merchantLocation, result);
 	}
+	
+	@Test
+	public void testDuplicateAddressMerchantLocation() {
+		
+	}
 
+	@Test
+	public void testUpdateMerchantLocationDetails() {
+		//TODO: Update as patch, with Map of Field:Value pairs
+		final MerchantLocation ml = new MerchantLocation();
+		ml.setName("ABC");
+		ml.setAddressPrimary("123");
+		ml.setAddressSecondary("PO");
+		ml.setCity("X");
+		ml.setZipcode("900");
+		ml.setState("MD");
+		ml.setCountry("USA");
+		
+	}
 }
